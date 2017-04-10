@@ -122,7 +122,8 @@ jQuery(document).ready(function ($) {
 		fingerGeometry 		= webGl ? new THREE.SphereGeometry(5, 20, 10) : new THREE.TorusGeometry(1, 5, 5, 5), // The geometry of a finger (simplified if using a canvas renderer)
 
 		camera 				= new THREE.PerspectiveCamera(45, 2/1, 1, 3000),
-		cameraInitialPos	= new THREE.Vector3(0, 0, 450),
+		cameraInitialPos	= new THREE.Vector3(0, -450, 0),
+		cameraInitialRot	= new THREE.Euler(-Math.PI/2, Math.PI, 0),
 		scene 				= new THREE.Scene(),
 		controls 			= new THREE.OrbitControls(camera, renderer.domElement),
 
@@ -817,7 +818,8 @@ jQuery(document).ready(function ($) {
 	 * The camera is set to its initial position
 	 */
 	camera.position.set(cameraInitialPos.x, cameraInitialPos.y, cameraInitialPos.z);
-
+	camera.rotation.set(cameraInitialRot.x, cameraInitialRot.y, cameraInitialRot.z);
+	camera.updateMatrixWorld();
 	/*
 	 * The renderer is added to the rendering area in the DOM.  The size of the renderer will be modified when the window is resized.
 	 */
@@ -919,7 +921,12 @@ jQuery(document).ready(function ($) {
 	/*
 	 * And bind a simple update function into the requestAnimFrame function
 	 */
-	function updateRender() { controls.update(); TWEEN.update(); renderer.render(scene, camera); requestAnimFrame(updateRender); }
+	function updateRender() { 
+		//controls.update();
+		TWEEN.update(); 
+		renderer.render(scene, camera); 
+		requestAnimFrame(updateRender); 
+	}
 
 	requestAnimFrame(updateRender);
 
@@ -1054,7 +1061,7 @@ jQuery(document).ready(function ($) {
 	function clearGesture() {
 		
 		new TWEEN.Tween(camera.position).to({x: cameraInitialPos.x, y: cameraInitialPos.y, z: cameraInitialPos.z}).easing(TWEEN.Easing.Exponential.Out).start();
-		new TWEEN.Tween(camera.rotation).to({x: 0, y: 0, z: 0}).easing(TWEEN.Easing.Exponential.Out).start();
+		new TWEEN.Tween(camera.rotation).to({x: cameraInitialRot.x, y: cameraInitialRot.y, z: cameraInitialRot.z}).easing(TWEEN.Easing.Exponential.Out).start();
 
 		for (var i = 0, l = renderedHands.length; i < l; i++) { scene.remove(renderedHands[i]); }
 		
