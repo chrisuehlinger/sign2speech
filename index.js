@@ -2,6 +2,7 @@ var say = require('say')
 var express = require('express')
 var app = express()
 
+app.use(express.static('.'));
 
 app.get('/speak', function(req,res){
   console.log(req.query.text);
