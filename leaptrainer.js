@@ -427,7 +427,7 @@ LeapTrainer.Controller = Class.extend({
 			
 			hand = hands[i];
 
-			recordVector(hand.stabilizedPalmPosition);
+			recordVector(hand.palmPosition);
 
 			fingers 	= hand.fingers;
 			fingerCount = fingers.length;
@@ -435,8 +435,11 @@ LeapTrainer.Controller = Class.extend({
 			for (var j = 0, k = fingerCount; j < k; j++) {
 				
 				finger = fingers[j];
+				for (var jj = 0; jj < finger.bones.length; jj++){
+					recordVector(finger.bones[jj].center());
+				}
 
-				recordVector(finger.stabilizedTipPosition);	
+				// recordVector(finger.stabilizedTipPosition);	
 			};
 		};
 	},
@@ -486,11 +489,11 @@ LeapTrainer.Controller = Class.extend({
 			
 			fingersData = [];
 
-			for (var j = 0, k = fingerCount; j < k; j++) {
-				
-				finger = fingers[j];
-
-				fingersData.push({position: finger.stabilizedTipPosition, direction: finger.direction, length: finger.length});
+			for (var j = 0; j < fingerCount; j++) {
+				for(var k = 1; k < fingers[j].bones.length; k++){
+					finger = fingers[j].bones[k];
+					fingersData.push({position: finger.center(), direction: finger.direction(), length: finger.length});
+				}
 			};
 			
 			handData.fingers = fingersData;

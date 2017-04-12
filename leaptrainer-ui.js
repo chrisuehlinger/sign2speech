@@ -49,6 +49,7 @@
  * 
  * ---------------------------
  */
+var controller, trainer;
 jQuery(document).ready(function ($) {
 
 	/*
@@ -60,12 +61,12 @@ jQuery(document).ready(function ($) {
 	/*
 	 * First we create the leap controller - since the training UI will respond to event coming directly from the device.
 	 */
-	var controller = new Leap.Controller();
+	controller = new Leap.Controller();
 
 	/*
 	 * Now we create the trainer controller, passing the leap controller as a parameter
 	 */
-	var trainer = new LeapTrainer.Controller({controller: controller});
+	trainer = new LeapTrainer.Controller({controller: controller});
 
 	/*
 	 * We get the DOM crawling done now during setup, so it's not consuming cycles at runtime.
@@ -848,11 +849,11 @@ jQuery(document).ready(function ($) {
 
 	var finger, fingers = [];
 	
-	for (var j = 0; j < 10; j++) { 
+	for (var j = 0; j < 100; j++) { 
 		
 		finger = new THREE.Mesh(fingerGeometry, material);
 
-		finger.visible = j < 5;
+		// finger.visible = j < 5;
 		
 		scene.add(finger);
 
@@ -956,7 +957,7 @@ jQuery(document).ready(function ($) {
 	 */
 	function positionPalm(hand, palm) {
 		
-		position = hand.stabilizedPalmPosition || hand.position;
+		position = hand.palmPosition || hand.position;
 
 		palm.position.set(position[0], position[1] + yOffset, position[2]); 
 
@@ -974,11 +975,11 @@ jQuery(document).ready(function ($) {
 	 */
 	function positionFinger(handFinger, finger) {
 
-		position = handFinger.stabilizedTipPosition || handFinger.position;
+		position = handFinger.stabilizedTipPosition || handFinger.position || handFinger.center();
 		
 		finger.position.set(position[0], position[1] + yOffset, position[2]);
 
-		direction = handFinger.direction;
+		direction = typeof handFinger.direction === 'function' ? handFinger.direction() : handFinger.direction;
 		
 		finger.lookAt(new THREE.Vector3(direction[0], direction[1], direction[2]).add(finger.position));
 		
@@ -996,6 +997,7 @@ jQuery(document).ready(function ($) {
 
 		if (clock.previousTime === 1000000) {
 
+			fingers.map(function(finger){finger.visible = false});
 			handCount = frame.hands.length;
 			
 			for (var i = 0; i < palmCount; i++) { // We attempt to position all (normally, both) rendered hands
@@ -1008,7 +1010,10 @@ jQuery(document).ready(function ($) {
 
 						palm.visible = false;
 
-						for (var j = 0, k = 5, p; j < k; j++) { p = (i * 5) + j; fingers[p].visible = false; };						
+						for (var j = 0, k = 5, p; j < k; j++) { 
+							p = (i * 5) + j; 
+							fingers[p].visible = false; 
+						};						
 					}
 
 				} else {
@@ -1022,26 +1027,25 @@ jQuery(document).ready(function ($) {
 					palm.visible = true;
 
 					handFingers 	= hand.fingers;
-					handFingerCount = handFingers.length;
+					handFingerCount = 50;
 
 					/*
 					 * 
 					 */
-					for (var j = 0, k = 5; j < k; j++) {
-						
-						finger = fingers[(i * 5) + j];
+					for (var j = 0; j < hand.fingers.length; j++) {
 
-						if (j >= handFingerCount) {
-							
-							finger.visible = false;
-							
-						} else {
-
-							positionFinger(handFingers[j], finger);
-							
+						for( var jj = 1; jj < handFingers[j].bones.length; jj++) {
+							finger = fingers[(i * 50) + (j*5) + jj];
+							positionFinger(handFingers[j].bones[jj], finger);
 							finger.visible = true;
 						}
-					};
+					}
+					
+					for( var jj = 1; jj < hand.indexFinger.bones.length; jj++) {
+						finger = fingers[(i * 50) + (23) + jj];
+						positionFinger(hand.indexFinger.bones[jj], finger);
+						finger.visible = true;
+					}
 				}
 			}	
 		}
@@ -1125,17 +1129,11 @@ jQuery(document).ready(function ($) {
 				 * Fingers
 				 */	
 				fingers = hand.fingers;
-
-				for (var p = 0, q = fingers.length; p < q; p++) {
-					
+				for (var p = 0; p < fingers.length; p++) {
 					finger = fingers[p];
-					
 					fingerMesh = createFinger();
-
 					fingerMesh.material = material;
-					
 					positionFinger(finger, fingerMesh);
-
 					handObject.add(fingerMesh);
 				}
 
