@@ -61,7 +61,9 @@ jQuery(document).ready(function ($) {
 	/*
 	 * First we create the leap controller - since the training UI will respond to event coming directly from the device.
 	 */
-	controller = new Leap.Controller();
+	controller = new Leap.Controller({
+		optimizeHMD: true
+	});
 
 	/*
 	 * Now we create the trainer controller, passing the leap controller as a parameter
@@ -801,12 +803,12 @@ jQuery(document).ready(function ($) {
 	/*
 	 * When the connection to the Leap is lost we set the output text and disable the UI, making the background an alarming RED.
 	 */
-	controller.on('deviceDisconnected', function() { disableUI(red, 'DISCONNECTED!  Check the connection to your Leap Motion'); });
+	controller.on('deviceStopped', function() { disableUI(red, 'DISCONNECTED!  Check the connection to your Leap Motion'); });
 	
 	/*
 	 * When the connection to the Leap is restored, we re-enable the UI. 
 	 */
-	controller.on('deviceConnected', function() { enableUI('Connection restored!'); });
+	controller.on('deviceStreaming', function() { enableUI('Connection restored!'); });
 
 
 	/*
@@ -846,6 +848,7 @@ jQuery(document).ready(function ($) {
 
 	scene.add(palms[0]);
 	scene.add(palms[1]);
+	scene.background = new THREE.Color('#88CFEB');
 
 	var finger, fingers = [];
 	
