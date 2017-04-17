@@ -7,7 +7,7 @@ body 				{ font-family: Calibri; margin: 0px; -ms-touch-action: none; overflow-x
 
 
 #gesture-creation-area 		{ height: 50px; background: #fff; margin: 22px 0px 0px 0px; padding-left: 22px; width: 318px; position: absolute; z-index: 9999; }
-#new-gesture-name 			{ width: 201px; float: left; padding: 0px 0px 0px 15px; outline: none; font-size: 14px; font-weight: bold; color: #34495E; text-transform: uppercase; height: 50px; background: #FFFFFF; border: 0px; }
+#new-gesture-name 			{ width: 201px; float: left; padding: 0px 0px 0px 15px; outline: none; font-size: 14px; font-weight: bold; color: #34495E; height: 50px; background: #FFFFFF; border: 0px; }
 #create-new-gesture 		{ width: 102px; float: left; }
 #gesture-creation-area img 	{ margin-left: 20px; } 
 

@@ -163,16 +163,7 @@ jQuery(document).ready(function ($) {
 	controls.noPan = true;
 
 
-	// If there is nothing in localStorage, initialize it
-	if(!localStorage.getItem('savedGestures')) {
-		localStorage.setItem('savedGestures', '[]');
-	}
-
-	// Get all saved gestures into memory
-	var savedGestures = JSON.parse(localStorage.getItem('savedGestures'));
-	savedGestures.forEach(function(gesture){
-		trainer.fromJSON(JSON.stringify(gesture));
-	});
+	
 
 	
 	/*
@@ -520,7 +511,7 @@ jQuery(document).ready(function ($) {
 		 * 
 		 * The gesture name is upper-cased for uniformity (TODO: This shouldn't really be a requirement).
 		 */
-		trainer.create(name.toUpperCase());
+		trainer.create(name);
 		
 		return false;
 	});
@@ -643,7 +634,8 @@ jQuery(document).ready(function ($) {
 	/*
 	 * When a new gesture is created by the trainer, an entry is added to the gestures list.
 	 */
-	trainer.on('gesture-created', function(gestureName, trainingSkipped) {
+	trainer.on('gesture-created', onGestureCreate);
+	function onGestureCreate(gestureName, trainingSkipped) {
 		
 		/*
 		 * Since a new gesture is being created, we need to add an entry in the gesture list
@@ -692,7 +684,7 @@ jQuery(document).ready(function ($) {
 	    openConfiguration.append('<option value="' + gestureName + '">' + gestureName + '</option>');
 	    
 	    closeConfiguration.append('<option value="' + gestureName + '">' + gestureName + '</option>');
-	});
+	}
 
 	/*
 	 * During a training countdown we update the output text. 
@@ -756,9 +748,14 @@ jQuery(document).ready(function ($) {
 		
 		setGestureScale(gestureName, 100, green, green);
 
-		var savedGestures = JSON.parse(localStorage.getItem('savedGestures'));
-		savedGestures.push(JSON.parse(trainer.toJSON(gestureName)));
-		localStorage.setItem('savedGestures', JSON.stringify(savedGestures));
+		if(!isLoadingGestures){
+			var savedGestures = JSON.parse(localStorage.getItem('savedGestures'));
+			savedGestures = savedGestures.filter(function(gesture){
+				return gesture.name !== gestureName;
+			});
+			savedGestures.push(JSON.parse(trainer.toJSON(gestureName)));
+			localStorage.setItem('savedGestures', JSON.stringify(savedGestures));
+		}
 	});
 
 	/*
@@ -766,7 +763,8 @@ jQuery(document).ready(function ($) {
 	 * match the hit value, and set the output text.
 	 */
 	trainer.on('gesture-recognized', function(hit, gestureName, allHits) {
-		$.get('/speak', {
+		$.ajax({
+			url:'/speak',
 			data: {
 				text: gestureName
 			}
@@ -1179,4 +1177,17 @@ jQuery(document).ready(function ($) {
 	 * And finally we connect to the device
 	 */
 	controller.connect();
+
+	// If there is nothing in localStorage, initialize it
+	if(!localStorage.getItem('savedGestures')) {
+		localStorage.setItem('savedGestures', '[]');
+	}
+
+	// Get all saved gestures into memory
+	var savedGestures = JSON.parse(localStorage.getItem('savedGestures'));
+	var isLoadingGestures = true;
+	savedGestures.forEach(function(gesture){
+		trainer.fromJSON(JSON.stringify(gesture));
+	});
+	isLoadingGestures = false;
 });
