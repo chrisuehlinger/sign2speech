@@ -767,7 +767,9 @@ jQuery(document).ready(function ($) {
 	 */
 	trainer.on('gesture-recognized', function(hit, gestureName, allHits) {
 		$.get('/speak', {
-			data: gestureName
+			data: {
+				text: gestureName
+			}
 		});
 
 		unselectAllGestures(false);
