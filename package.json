@@ -4,7 +4,7 @@
   "description": "A gesture and pose learning and recognition framework for the [Leap Motion](http://www.leapmotion.com/).",
   "main": "index.js",
   "scripts": {
-    "postinstall": "./install-usb-over-network.sh && sudo apt-get install usbip festival festvox-kallpc16k -y --force-yes",
+    "postinstall": "./install-deps.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
