@@ -162,6 +162,18 @@ jQuery(document).ready(function ($) {
 	 */
 	controls.noPan = true;
 
+
+	// If there is nothing in localStorage, initialize it
+	if(!localStorage.getItem('savedGestures')) {
+		localStorage.setItem('savedGestures', '[]');
+	}
+
+	// Get all saved gestures into memory
+	var savedGestures = JSON.parse(localStorage.getItem('savedGestures'));
+	savedGestures.forEach(function(gesture){
+		trainer.fromJSON(JSON.stringify(gesture));
+	});
+
 	
 	/*
 	 * ------------------------------------------------------------------------------------------
@@ -743,6 +755,10 @@ jQuery(document).ready(function ($) {
 		setGestureLabel(gestureName, 'Learned');
 		
 		setGestureScale(gestureName, 100, green, green);
+
+		var savedGestures = JSON.parse(localStorage.getItem('savedGestures'));
+		savedGestures.push(JSON.parse(trainer.toJSON(gestureName)));
+		localStorage.setItem('savedGestures', JSON.stringify(savedGestures));
 	});
 
 	/*
@@ -750,6 +766,9 @@ jQuery(document).ready(function ($) {
 	 * match the hit value, and set the output text.
 	 */
 	trainer.on('gesture-recognized', function(hit, gestureName, allHits) {
+		$.get('/speak', {
+			data: gestureName
+		});
 
 		unselectAllGestures(false);
 		
